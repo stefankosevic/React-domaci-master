@@ -14,8 +14,8 @@ const CombinedData = (props) => {
           <div>Wind</div>
         </div>
         <div className={classes.Data}>
-          <div className={classes.Bit}>{props.sunrise}</div>
-          <div>Sunrise</div>
+          <div className={classes.Bit}>{props.aqi}</div>
+          <div>Air quality</div>
         </div>
       </div>
       <div className={classes.Bottom}>
@@ -28,8 +28,8 @@ const CombinedData = (props) => {
           <div>Rain</div>
         </div>
         <div className={classes.Data}>
-          <div className={classes.Bit}>{props.sunset}</div>
-          <div>Sunset</div>
+          <div className={classes.Bit}>{props.humidity}</div>
+          <div>Humidity</div>
         </div>
       </div>
     </div>

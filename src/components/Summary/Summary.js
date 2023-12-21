@@ -5,10 +5,11 @@ const Summary = (props) => {
   return (
     <div className={classes.Summary}>
       <div className={classes.Icon}>
-        <i
-          style={{ fontSize: '150px', margin: '20px 30px 0 0' }}
-          className={props.icon}
-        ></i>
+        <img
+          style={{ margin: '20px 30px 0 0', height: '150px', width: '150px' }}
+          src={props.icon}
+          data-testid="summary-icon"
+        ></img>
       </div>
       <div className={classes.Temp}>
         <h3 style={{ margin: '0' }} className={classes.H3}>

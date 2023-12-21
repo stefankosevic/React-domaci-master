@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
+import { Route, Switch } from 'react-router-dom'
+import { connect } from 'react-redux'
 import classes from './App.module.css'
 import Search from './containers/Search'
-import { connect } from 'react-redux'
 import Forecast from './containers/Forecast/Forecast'
-import { Route, Switch } from 'react-router-dom'
 import Spinner from './components/Spinner/Spinner'
 import Error404 from './components/Error404/Error404'
 

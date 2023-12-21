@@ -7,9 +7,7 @@ const app = express()
 const port = process.env.PORT || 8080
 
 app.get('/weather/:address', (req, res) => {
-  console.log(req)
   const address = req.params.address
-  console.log(address)
   if (!address) {
     return res.send({
       error: 'You must provide an address!',
@@ -29,6 +27,11 @@ app.get('/weather/:address', (req, res) => {
       if (error) {
         return res.send({ error: 'greska' })
       }
+      console.log('here ', {
+        forecast: forecastData,
+        location,
+        address: req.query.address,
+      })
       res.send({
         forecast: forecastData,
         location,

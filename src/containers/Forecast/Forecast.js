@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import CombinedData from '../../components/CombinedData/CombinedData'
 import Summary from '../../components/Summary/Summary'
@@ -6,25 +6,84 @@ import classes from './Forecast.module.css'
 import Card from '../../components/Card/Card'
 import { Link, Redirect } from 'react-router-dom'
 import Error404 from '../../components/Error404/Error404'
+import axios from 'axios'
 
 const Forecast = (props) => {
-  let classNom = ''
+  const [actualTime, setActualTime] = useState(null)
+  const [location, setLocation] = useState(null)
+  const [currentTemperature, setCurrentTemperature] = useState(null)
+  const [currentSummary, setCurrentSummary] = useState(null)
+  const [maxTemp, setMaxTemp] = useState(null)
+  const [minTemp, setMinTemp] = useState(null)
+  const [windSpeed, setWindSpeed] = useState(null)
+  const [precipProb, setPrecipProb] = useState(null)
+  const [humidity, setHumidity] = useState(null)
+  const [aqi, setAqi] = useState(null)
+  const [cardData, setCardData] = useState(null)
 
-  let actualTime = null
-  let actualSunrise = null
-  let actualSunset = null
+  useEffect(async () => {
+    const { data } = await axios.get(
+      `http://worldtimeapi.org/api/timezone/${props.data.data.forecast.location.tz_id}`,
+    )
+    setActualTime(
+      new Date(data.datetime)
+        .toLocaleDateString('en-US', {
+          timeZone: props.data.data.forecast.location.tz_id,
+          month: 'long',
+          weekday: 'long',
+          year: undefined,
+          day: 'numeric',
+        })
+        .toUpperCase(),
+    )
 
-  let location = null
-  let currentTime = null
-  let currentTemperature = null
-  let currentSummary = null
-  let maxTemp = null
-  let minTemp = null
-  let windSpeed = null
-  let precipProb = null
-  let sunrise = null
-  let sunset = null
-  let cardData = null
+    setCurrentTemperature(Math.round(props.data.data.forecast.current?.temp_c))
+    setCurrentSummary(props.data.data.forecast.current.condition.text)
+    setMaxTemp(
+      Math.round(
+        props.data.data.forecast.forecast.forecastday[0].day.maxtemp_c,
+      ),
+    )
+    setMinTemp(
+      Math.round(
+        props.data.data.forecast.forecast.forecastday[0].day.mintemp_c,
+      ),
+    )
+    setWindSpeed(props.data.data.forecast.current.wind_kph)
+    setPrecipProb(
+      props.data.data.forecast.forecast.forecastday[0].day.daily_chance_of_rain,
+    )
+    setHumidity(props.data.data.forecast.current.humidity)
+    setAqi(props.data.data.forecast.current.air_quality[`us-epa-index`])
+    setLocation(props.data.data.location)
+
+    setCardData(
+      props.data.data.forecast.forecast.forecastday.map((day) => (
+        <Card
+          day={`${new Date(day.date).toLocaleDateString('en-GB', {
+            month: undefined,
+            year: undefined,
+            hour: undefined,
+            timeZone: props.data.data.forecast.location.tz_id,
+            minute: undefined,
+            second: undefined,
+            weekday: 'short',
+          })}, ${new Date(day.date).toLocaleDateString('en-GB', {
+            month: undefined,
+            year: undefined,
+            hour: undefined,
+            timeZone: props.data.data.forecast.location.tz_id,
+            minute: undefined,
+            second: undefined,
+          })}`}
+          key={day.date_epoch}
+          icon={day.day.condition.icon}
+          maxTemp={Math.round(day.day.maxtemp_c)}
+          minTemp={Math.round(day.day.mintemp_c)}
+        />
+      )),
+    )
+  }, [])
 
   if (props.data === null) {
     return <Redirect to="/" />
@@ -32,107 +91,6 @@ const Forecast = (props) => {
 
   if (props.data.data.forecast === undefined) {
     return <Error404 />
-  }
-
-  if (!props.isLoading) {
-    currentTemperature = Math.round(
-      props.data.data.forecast.currently.temperature,
-    )
-    currentSummary = props.data.data.forecast.currently.summary
-    currentTime = props.data.data.forecast.currently.time
-
-    maxTemp = Math.round(props.data.data.forecast.daily.data[0].temperatureHigh)
-    minTemp = Math.round(props.data.data.forecast.daily.data[0].temperatureMin)
-    windSpeed = props.data.data.forecast.daily.data[0].windSpeed
-    precipProb = Math.round(
-      props.data.data.forecast.daily.data[0].precipProbability * 100,
-    )
-    sunrise = props.data.data.forecast.daily.data[0].sunriseTime
-    sunset = props.data.data.forecast.daily.data[0].sunsetTime
-
-    cardData = props.data.data.forecast.daily.data.map((day) => (
-      <Card
-        day={new Date(day.time * 1000).toLocaleDateString('en-US', {
-          day: undefined,
-          month: undefined,
-          year: undefined,
-          hour: undefined,
-          timeZone: props.data.data.forecast.timezone,
-          minute: undefined,
-          second: undefined,
-          weekday: 'short',
-        })}
-        key={day.time}
-        icon={day.icon}
-        maxTemp={Math.round(day.temperatureHigh)}
-        minTemp={Math.round(day.temperatureLow)}
-      />
-    ))
-
-    // cardData.map((day) => {
-    //   return <Card />
-    // })
-
-    actualSunrise = new Date(sunrise * 1000).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: props.data.data.forecast.timezone,
-      hour12: false,
-    })
-
-    actualSunset = new Date(sunset * 1000).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: props.data.data.forecast.timezone,
-      hour12: false,
-    })
-
-    actualTime = new Date(currentTime * 1000)
-      .toLocaleDateString('en-US', {
-        timeZone: props.data.data.forecast.timezone,
-        month: 'long',
-        weekday: 'long',
-        year: undefined,
-        day: 'numeric',
-      })
-      .toUpperCase()
-
-    location = props.data.data.location
-
-    switch (props.data.data.forecast.currently.icon) {
-      case 'clear-day':
-        classNom = 'wi wi-day-sunny'
-        break
-      case 'clear-night':
-        classNom = 'wi wi-night-clear'
-        break
-      case 'rain':
-        classNom = 'wi wi-day-rain'
-        break
-      case 'snow':
-        classNom = 'wi wi-day-snow'
-        break
-      case 'sleet':
-        classNom = 'wi wi-day-sleet'
-        break
-      case 'wind':
-        classNom = 'wi wi-day-wind'
-        break
-      case 'fog':
-        classNom = 'wi wi-day-fog'
-        break
-      case 'cloudy':
-        classNom = 'wi wi-day-cloudy'
-        break
-      case 'partly-cloudy-day':
-        classNom = 'wi wi-day-cloudy'
-        break
-      case 'partly-cloudy-night':
-        classNom = 'wi wi-night-partly-cloudy'
-        break
-      default:
-        classNom = ''
-    }
   }
 
   return (
@@ -150,7 +108,7 @@ const Forecast = (props) => {
         <p style={{ fontSize: '25px' }}>{actualTime}</p>
         <div className={classes.TopDiv}>
           <Summary
-            icon={classNom}
+            icon={props.data.data.forecast.current.condition.icon}
             curTemp={currentTemperature}
             curSumm={currentSummary}
           />
@@ -159,8 +117,8 @@ const Forecast = (props) => {
             minTemperature={minTemp}
             wind={windSpeed}
             rain={precipProb}
-            sunrise={actualSunrise}
-            sunset={actualSunset}
+            humidity={humidity}
+            aqi={aqi}
           />
         </div>
         <div className={classes.Cards}>{cardData}</div>

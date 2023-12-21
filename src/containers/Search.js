@@ -2,9 +2,6 @@ import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import * as actions from '../store/actions/index'
-import axios from 'axios'
-import Button from '../components/Button/Button'
-
 import classes from './Search.module.css'
 
 const Search = (props) => {
