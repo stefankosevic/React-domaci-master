@@ -7,7 +7,7 @@ describe('Button component', () => {
     render(<Button />)
   })
 
-  it('displays the svg', () => {
+  it('displays the img', () => {
     const { getByAltText } = render(<Button />)
     expect(getByAltText('loupe')).toBeInTheDocument()
   })
